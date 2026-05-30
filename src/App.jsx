@@ -18,18 +18,17 @@ const STAGE_COLORS = [
   { bg: '#fef9c3', border: '#fbbf24', glow: '#d97706', label: '#78350f' },  // Mid Career - amber
 ]
 
-// SVG board dimensions (viewBox units)
-const VW = 560
-const VH = 390
+// SVG board dimensions (viewBox units) — wide aspect ratio fills projection screens
+const VW = 900
+const VH = 415
 
-// Winding snake path: 6 rows × 6 cells, each row 58px apart, cells 89px apart
-// Row 0 L→R, Row 1 R→L, ...
+// Winding snake path: 6 rows × 6 cells, row spacing 65px, cell spacing 160px
 const CELL_DATA = Array.from({ length: 36 }, (_, i) => {
   const stageIdx = Math.floor(i / 6)
   const pos = i % 6
   const row = stageIdx
-  const x = row % 2 === 0 ? 50 + pos * 92 : 510 - pos * 92
-  const y = 46 + row * 59
+  const x = row % 2 === 0 ? 50 + pos * 160 : 850 - pos * 160
+  const y = 46 + row * 65
   const type = i === 0 ? 'start'
     : i === 35 ? 'finish'
     : pos === 0 ? 'milestone'
@@ -38,19 +37,19 @@ const CELL_DATA = Array.from({ length: 36 }, (_, i) => {
   return { i, stageIdx, pos, x, y, type }
 })
 
-// SVG path: straight rows connected by right/left semicircles (radius = half row-spacing = 29.5)
+// SVG path: arc radius = 65/2 = 32 (half row-spacing)
 const ROAD_PATH = [
-  'M 50,46 L 510,46',
-  'A 29,29 0 0,1 510,104',
-  'L 50,104',
-  'A 29,29 0 0,0 50,163',
-  'L 510,163',
-  'A 29,29 0 0,1 510,222',
-  'L 50,222',
-  'A 29,29 0 0,0 50,281',
-  'L 510,281',
-  'A 29,29 0 0,1 510,340',
-  'L 50,340',
+  'M 50,46 L 850,46',
+  'A 32,32 0 0,1 850,111',
+  'L 50,111',
+  'A 32,32 0 0,0 50,176',
+  'L 850,176',
+  'A 32,32 0 0,1 850,241',
+  'L 50,241',
+  'A 32,32 0 0,0 50,306',
+  'L 850,306',
+  'A 32,32 0 0,1 850,371',
+  'L 50,371',
 ].join(' ')
 
 const SYSTEM_PROMPT = `You are a brutal, funny narrator for "CS Life" — a board game about surviving college and early career as a CS major.
@@ -217,7 +216,6 @@ function GameBoard({ players, currentPlayerIdx }) {
 
   return (
     <div className="board-panel">
-      <div className="panel-header">◈ CS LIFE JOURNEY ◈</div>
       <div className="board-game-area">
 
         {/* ── SVG winding board ── */}
@@ -229,8 +227,8 @@ function GameBoard({ players, currentPlayerIdx }) {
 
             <defs>
               {/* Subtle dot pattern for board texture */}
-              <pattern id="dots" width="18" height="18" patternUnits="userSpaceOnUse">
-                <circle cx="9" cy="9" r="0.8" fill="#0d140d" />
+              <pattern id="dots" width="20" height="20" patternUnits="userSpaceOnUse">
+                <circle cx="10" cy="10" r="0.9" fill="#1e3a5f" />
               </pattern>
               {/* Glow filters per zone */}
               <filter id="glow-blue">
@@ -247,44 +245,44 @@ function GameBoard({ players, currentPlayerIdx }) {
               </filter>
             </defs>
 
-            {/* ── Board background — rich green, like a real game board ── */}
-            <rect x="0" y="0" width={VW} height={VH} fill="#166534" rx="10"/>
-            <rect x="0" y="0" width={VW} height={VH} fill="url(#dots)" rx="10" opacity="0.4"/>
+            {/* ── Board background — dark navy, CS/tech aesthetic ── */}
+            <rect x="0" y="0" width={VW} height={VH} fill="#0f172a" rx="10"/>
+            <rect x="0" y="0" width={VW} height={VH} fill="url(#dots)" rx="10" opacity="0.5"/>
 
             {/* ── Zone overlays ── */}
-            <rect x="0" y="0"   width={VW} height={131} fill="#1d4ed8" opacity="0.08" rx="10"/>
-            <rect x="0" y={131} width={VW} height={118} fill="#7c3aed" opacity="0.09"/>
-            <rect x="0" y={249} width={VW} height={141} fill="#ea580c" opacity="0.08" rx="10"/>
+            <rect x="0" y="0"   width={VW} height={143} fill="#3b82f6" opacity="0.07" rx="10"/>
+            <rect x="0" y={143} width={VW} height={130} fill="#8b5cf6" opacity="0.08"/>
+            <rect x="0" y={273} width={VW} height={142} fill="#06b6d4" opacity="0.07" rx="10"/>
 
-            {/* ── Zone watermark labels (visible on green) ── */}
-            <text x="280" y="18"  textAnchor="middle" fill="rgba(255,255,255,0.18)" fontSize="11" fontFamily="Courier New" letterSpacing="5" fontWeight="bold">COLLEGE</text>
-            <text x="280" y="147" textAnchor="middle" fill="rgba(255,255,255,0.18)" fontSize="11" fontFamily="Courier New" letterSpacing="3" fontWeight="bold">SENIOR YEARS</text>
-            <text x="280" y="265" textAnchor="middle" fill="rgba(255,255,255,0.18)" fontSize="11" fontFamily="Courier New" letterSpacing="5" fontWeight="bold">INDUSTRY</text>
+            {/* ── Zone watermark labels ── */}
+            <text x={VW/2} y="18"  textAnchor="middle" fill="rgba(255,255,255,0.15)" fontSize="13" fontFamily="Courier New" letterSpacing="6" fontWeight="bold">COLLEGE</text>
+            <text x={VW/2} y="162" textAnchor="middle" fill="rgba(255,255,255,0.15)" fontSize="13" fontFamily="Courier New" letterSpacing="4" fontWeight="bold">SENIOR YEARS</text>
+            <text x={VW/2} y="289" textAnchor="middle" fill="rgba(255,255,255,0.15)" fontSize="13" fontFamily="Courier New" letterSpacing="6" fontWeight="bold">INDUSTRY</text>
 
             {/* ── Flavor text between rows ── */}
-            <text x="280" y="79"  textAnchor="middle" fill="rgba(255,255,255,0.22)" fontSize="6.5" fontFamily="Courier New" letterSpacing="1">// TODO: pick a major before advisor yells at you</text>
-            <text x="280" y="147" textAnchor="middle" fill="rgba(255,255,255,0.22)" fontSize="6.5" fontFamily="Courier New" letterSpacing="1">git commit -m "survived junior year somehow"</text>
-            <text x="280" y="208" textAnchor="middle" fill="rgba(255,255,255,0.22)" fontSize="6.5" fontFamily="Courier New" letterSpacing="1">$ leetcode --mode=panic --days-until-oa=3</text>
-            <text x="280" y="265" textAnchor="middle" fill="rgba(255,255,255,0.22)" fontSize="6.5" fontFamily="Courier New" letterSpacing="1">ERROR: work_life_balance not found in PATH</text>
-            <text x="280" y="320" textAnchor="middle" fill="rgba(255,255,255,0.22)" fontSize="6.5" fontFamily="Courier New" letterSpacing="1">{'while (true) { grind(); if (burnout) break; }'}</text>
+            <text x={VW/2} y="80"  textAnchor="middle" fill="rgba(148,163,184,0.35)" fontSize="7.5" fontFamily="Courier New" letterSpacing="1">// TODO: pick a major before advisor yells at you</text>
+            <text x={VW/2} y="144" textAnchor="middle" fill="rgba(148,163,184,0.35)" fontSize="7.5" fontFamily="Courier New" letterSpacing="1">git commit -m "survived junior year somehow"</text>
+            <text x={VW/2} y="209" textAnchor="middle" fill="rgba(148,163,184,0.35)" fontSize="7.5" fontFamily="Courier New" letterSpacing="1">$ leetcode --mode=panic --days-until-oa=3</text>
+            <text x={VW/2} y="274" textAnchor="middle" fill="rgba(148,163,184,0.35)" fontSize="7.5" fontFamily="Courier New" letterSpacing="1">ERROR: work_life_balance not found in PATH</text>
+            <text x={VW/2} y="339" textAnchor="middle" fill="rgba(148,163,184,0.35)" fontSize="7.5" fontFamily="Courier New" letterSpacing="1">{'while (true) { grind(); if (burnout) break; }'}</text>
 
-            {/* ── Road: bright orange, like real Game of Life ── */}
-            <path d={ROAD_PATH} stroke="#7c2d12" strokeWidth="38" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-            <path d={ROAD_PATH} stroke="#c2410c" strokeWidth="30" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-            <path d={ROAD_PATH} stroke="#f97316" strokeWidth="24" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-            <path d={ROAD_PATH} stroke="#fbbf24" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeDasharray="10,14" opacity="0.6"/>
+            {/* ── Road: indigo/purple, CS/circuit-trace aesthetic ── */}
+            <path d={ROAD_PATH} stroke="#1e1b4b" strokeWidth="44" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d={ROAD_PATH} stroke="#3730a3" strokeWidth="34" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d={ROAD_PATH} stroke="#6366f1" strokeWidth="26" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d={ROAD_PATH} stroke="#a5b4fc" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeDasharray="14,20" opacity="0.65"/>
 
             {/* ── Row direction arrows ── */}
             {[0,1,2,3,4,5].map(row => {
               const isEven = row % 2 === 0
-              const y = 46 + row * 59
+              const y = 46 + row * 65
               return (
                 <text key={row}
-                  x={isEven ? 18 : VW - 18}
+                  x={isEven ? 20 : VW - 20}
                   y={y + 5}
                   textAnchor="middle"
-                  fill="rgba(255,255,255,0.7)"
-                  fontSize="12"
+                  fill="rgba(165,180,252,0.7)"
+                  fontSize="13"
                   fontFamily="Courier New">
                   {isEven ? '▶' : '◀'}
                 </text>
@@ -294,14 +292,14 @@ function GameBoard({ players, currentPlayerIdx }) {
             {/* ── Stage name banners ── */}
             {STAGES.map((stage, si) => {
               const isEven = si % 2 === 0
-              const y = 46 + si * 59
-              const x = isEven ? 34 : VW - 34
+              const y = 46 + si * 65
+              const x = isEven ? 38 : VW - 38
               return (
                 <text key={si}
-                  x={x} y={y - 9}
+                  x={x} y={y - 10}
                   textAnchor="middle"
-                  fill="rgba(255,255,255,0.75)"
-                  fontSize="5.5"
+                  fill="rgba(165,180,252,0.8)"
+                  fontSize="6"
                   fontFamily="Courier New"
                   letterSpacing="1.5"
                   fontWeight="bold">
@@ -384,7 +382,7 @@ function GameBoard({ players, currentPlayerIdx }) {
             })}
 
             {/* Board border frame */}
-            <rect x="1" y="1" width={VW - 2} height={VH - 2} fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="2" rx="10"/>
+            <rect x="1" y="1" width={VW - 2} height={VH - 2} fill="none" stroke="rgba(99,102,241,0.4)" strokeWidth="2" rx="10"/>
           </svg>
         </div>
 
@@ -607,6 +605,18 @@ export default function App() {
   const [eventLog, setEventLog] = useState([])
   const [phase, setPhase] = useState('idle')
   const [diceValue, setDiceValue] = useState(null)
+  const [isFullscreen, setIsFullscreen] = useState(false)
+
+  useEffect(() => {
+    const handler = () => setIsFullscreen(!!document.fullscreenElement)
+    document.addEventListener('fullscreenchange', handler)
+    return () => document.removeEventListener('fullscreenchange', handler)
+  }, [])
+
+  function toggleFullscreen() {
+    if (!document.fullscreenElement) document.documentElement.requestFullscreen()
+    else document.exitFullscreen()
+  }
   const [currentEvent, setCurrentEvent] = useState(null)
   const [stageUpInfo, setStageUpInfo] = useState(null)
 
@@ -707,19 +717,6 @@ export default function App() {
   return (
     <div className="game-root">
       <div className="scanlines" />
-      <div className="game-header">
-        <div className="header-logo">◈ CS LIFE</div>
-        <div className="header-turn-info">
-          TURN {turnNumber} &nbsp;·&nbsp;
-          <span style={{ color: PLAYER_COLORS[currentPlayerIdx] }}>
-            {PLAYER_SYMBOLS[currentPlayerIdx]} {currentPlayer.name}'s turn
-          </span>
-        </div>
-        <div className="header-stage-badge" style={{ color: PLAYER_COLORS[currentPlayerIdx], borderColor: PLAYER_COLORS[currentPlayerIdx] }}>
-          {currentPlayer.stage.toUpperCase()}
-        </div>
-      </div>
-
       <div className="game-layout">
         <GameBoard players={players} currentPlayerIdx={currentPlayerIdx} />
       </div>
@@ -731,7 +728,7 @@ export default function App() {
             <span className="ba-sym" style={{ color: PLAYER_COLORS[currentPlayerIdx] }}>{PLAYER_SYMBOLS[currentPlayerIdx]}</span>
             <div className="ba-identity">
               <span className="ba-name">{currentPlayer.name}</span>
-              <span className="ba-stage">{currentPlayer.stage} · Age {currentPlayer.age}</span>
+              <span className="ba-stage">{currentPlayer.stage} · Age {currentPlayer.age} · Turn {turnNumber}</span>
             </div>
           </div>
           <div className="ba-stats">
@@ -771,6 +768,9 @@ export default function App() {
             </div>
           ))}
         </div>
+        <button className="fs-btn" onClick={toggleFullscreen} title="Toggle fullscreen">
+          {isFullscreen ? '⊡' : '⛶'}
+        </button>
       </div>
 
       {phase === 'rolling' && <DiceRollScreen finalValue={diceValue} onComplete={handleDiceComplete} />}
